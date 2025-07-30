@@ -1,0 +1,71 @@
+PROJECT_NAME: "DummyData"
+EXPERIMENT_NAME: "DummyDataModel"
+TARGET_COL: "label"
+ID_COLUMNS:
+  - "risk_id"
+IGNORED_FEATURES: []
+DATE_COL: "partition_date"
+TRAIN_START_DATE: "2024-01-01"
+TRAIN_END_DATE: "2024-08-31"
+OOT_START_DATE: "2024-09-01"
+OOT_END_DATE: "2024-09-30"
+PREDICTION_TYPE: "REAL_TIME"
+EXPLAINABLE_MODEL: "YES"
+OPTIMIZATION_METRIC: "AUCPR"
+USE_CROSS_VALIDATION: "NO"
+
+MINIO:
+  ENDPOINT: "minio-service.kubeflow:9000"
+  ACCESS_KEY: "minio"
+  SECRET_KEY: "minio123"
+  BUCKET: "mlpipeline"
+  DATASET_OBJECT: "dataset.parquet"
+  ARTIFACTS_BUCKET: "mlflow-artifacts"
+
+MLFLOW:
+  EXPERIMENT_NAME: "kubeflow-ml-pipeline"
+
+H2O_CONFIG:
+  MAX_MODELS: 2  # Increased for better model exploration
+  MAX_RUNTIME_SECS: 120  # Increased for better optimization (1 hour)
+  AUTOML_SEED: 42
+  CROSS_VALIDATION: "YES"
+
+KUBERNETES:
+  NAMESPACE: "kubeflow"
+  SERVICE_ACCOUNT: "kserve-service-account"
+
+KSERVE:
+  DEPLOYMENT_MODE: "Serverless"
+
+# Optional: Model name/version (will be auto-generated if empty)
+MODEL_NAME: ""
+MODEL_VERSION: ""
+
+# Pipeline Resource Limits - Optimized for 16GB system with 22 CPUs
+PIPELINE_RESOURCES:
+  COLLECT_DATA:
+    MEMORY_REQUEST: "2Gi"
+    MEMORY_LIMIT: "6Gi"
+    CPU_REQUEST: "2"
+    CPU_LIMIT: "6"
+  PREPROCESS_DATA:
+    MEMORY_REQUEST: "4Gi"
+    MEMORY_LIMIT: "6Gi"   # Temporarily increased for statistical analysis
+    CPU_REQUEST: "2"
+    CPU_LIMIT: "6"
+  TRAIN_MODEL:
+    MEMORY_REQUEST: "6Gi"
+    MEMORY_LIMIT: "12Gi"   # Increased for more models and longer runtime
+    CPU_REQUEST: "4"
+    CPU_LIMIT: "8"
+  EVALUATE_MODEL:
+    MEMORY_REQUEST: "3Gi"
+    MEMORY_LIMIT: "8Gi"   # Increased for model evaluation
+    CPU_REQUEST: "2"
+    CPU_LIMIT: "4"
+  DEPLOY_MODEL:
+    MEMORY_REQUEST: "1Gi"
+    MEMORY_LIMIT: "2Gi"
+    CPU_REQUEST: "1"
+    CPU_LIMIT: "2"

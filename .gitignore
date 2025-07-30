@@ -1,0 +1,40 @@
+# Generated data files
+data/*.parquet
+data/*.csv
+
+# Model artifacts
+src/app/assets/mojo-model.zip
+src/app/assets/feature_list.pkl
+
+# Generated API files
+src/app/api.py
+src/app/predict.py
+src/app/feature_collect.py
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.coverage
+.pytest_cache/
+
+# Virtual environments
+venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.log

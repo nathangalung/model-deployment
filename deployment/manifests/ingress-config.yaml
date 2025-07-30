@@ -1,0 +1,56 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kubeflow-ingress
+  namespace: kubeflow
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: localhost
+    http:
+      paths:
+      - path: /pipeline(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: ml-pipeline-ui
+            port:
+              number: 80
+      - path: /mlflow(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: mlflow-service
+            port:
+              number: 5000
+      - path: /minio(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: minio-service
+            port:
+              number: 9001
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kserve-ingress
+  namespace: kserve
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: localhost
+    http:
+      paths:
+      - path: /v1/models/(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: kserve-controller-manager-service
+            port:
+              number: 8080

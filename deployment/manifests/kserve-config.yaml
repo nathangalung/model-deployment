@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: inferenceservice-config
+  namespace: kserve
+data:
+  deploy: |-
+    {
+      "defaultDeploymentMode": "Serverless"
+    }
+  predictors: |-
+    {
+      "tensorflow": {
+        "image": "tensorflow/serving",
+        "defaultImageVersion": "2.6.2",
+        "defaultGpuImageVersion": "2.6.2-gpu",
+        "defaultTimeout": "60",
+        "supportedFrameworks": [
+          "tensorflow"
+        ],
+        "multiModelServer": false
+      },
+      "pytorch": {
+        "v1": {
+          "image": "pytorch/torchserve-kfs",
+          "defaultImageVersion": "0.7.0",
+          "defaultGpuImageVersion": "0.7.0-gpu",
+          "defaultTimeout": "60",
+          "supportedFrameworks": [
+            "pytorch"
+          ],
+          "multiModelServer": false
+        },
+        "v2": {
+          "image": "pytorch/torchserve-kfs",
+          "defaultImageVersion": "0.7.0",
+          "defaultGpuImageVersion": "0.7.0-gpu",
+          "defaultTimeout": "60",
+          "supportedFrameworks": [
+            "pytorch"
+          ],
+          "multiModelServer": false
+        }
+      },
+      "sklearn": {
+        "v1": {
+          "image": "kserve/sklearnserver",
+          "defaultImageVersion": "v0.11.0",
+          "supportedFrameworks": [
+            "sklearn"
+          ],
+          "multiModelServer": true
+        },
+        "v2": {
+          "image": "kserve/sklearnserver",
+          "defaultImageVersion": "v0.11.0",
+          "supportedFrameworks": [
+            "sklearn"
+          ],
+          "multiModelServer": true
+        }
+      }
+    }
+  storageInitializer: |-
+    {
+      "image" : "kserve/storage-initializer:v0.11.0",
+      "memoryRequest": "100Mi",
+      "memoryLimit": "1Gi",
+      "cpuRequest": "100m",
+      "cpuLimit": "1"
+    }
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: storage-config
+  namespace: kserve
+stringData:
+  AWS_ACCESS_KEY_ID: minio
+  AWS_SECRET_ACCESS_KEY: minio123
+  AWS_ENDPOINT_URL: http://minio-service.kubeflow:9000
+  USE_SSL: "false"

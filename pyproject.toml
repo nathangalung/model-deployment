@@ -1,0 +1,27 @@
+[project]
+name = "model-deployment"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "boto3>=1.39.8",
+    "fastapi>=0.116.1",
+    "flask>=3.1.1",
+    "fsspec>=2025.7.0",
+    "httpx>=0.28.1",
+    "ipykernel>=6.29.5",
+    "jupyter>=1.1.1",
+    "kfp>2.0.0",
+    "kubernetes>=25.3.0",
+    "lightgbm>=4.6.0",
+    "minio>=7.2.16",
+    "mlflow[extras]>=3.1.1",
+    "pandas>=2.3.1",
+    "psutil>=7.0.0",
+    "pyarrow>=20.0.0",
+    "pyyaml>=6.0.2",
+    "s3fs>=2025.7.0",
+    "scikit-learn>=1.7.0",
+    "uvicorn>=0.35.0",
+]
