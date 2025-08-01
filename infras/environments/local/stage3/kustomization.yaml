@@ -1,0 +1,34 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Stage 3: Kubeflow Applications and Configurations
+# Apply after infrastructure (stages 1-2) is ready
+resources:
+  # Core Kubeflow Applications
+  - ../../../../manifests/apps/pipeline/upstream/env/cert-manager/platform-agnostic-multi-user
+  - ../../../../manifests/apps/profiles/upstream/overlays/kubeflow
+  - ../../../../manifests/apps/centraldashboard/upstream/overlays/istio
+  - ../../../../manifests/apps/jupyter/jupyter-web-app/upstream/overlays/istio
+  - ../../../../manifests/apps/jupyter/notebook-controller/upstream/overlays/kubeflow
+  - ../../../../manifests/apps/volumes-web-app/upstream/overlays/istio
+  
+  # KServe Components
+  - ../../../../manifests/apps/kserve/kserve
+  - ../../../../manifests/apps/kserve/models-web-app/overlays/kubeflow
+  
+  # Local-specific configurations applied during setup
+  - ../mlflow-config.yaml
+  - ../central-dashboard-nginx-proxy.yaml
+  - ../kubeflow-rbac-fix.yaml
+  - ../namespace-rbac-fix.yaml
+  - ../storage-local.yaml
+  - ../local-development-fixes.yaml
+  
+patches:
+  # Resource patches for local development
+  - path: ../local-resource-patches.yaml
+  # Central dashboard configuration patch
+  - path: ../centraldashboard-patch.yaml
+    target:
+      kind: ConfigMap
+      name: centraldashboard-config

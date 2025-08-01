@@ -1,0 +1,98 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubeflow-admin-anonymous
+  namespace: dummypipeline
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubeflow-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: anonymous@kubeflow.org
+---
+apiVersion: rbac.authorization.k8s.io/v1  
+kind: RoleBinding
+metadata:
+  name: kubeflow-pipelines-admin-anonymous
+  namespace: dummypipeline
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubeflow-pipelines-edit
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: anonymous@kubeflow.org
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubeflow-notebooks-admin-anonymous
+  namespace: dummypipeline  
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: notebook-controller-kubeflow-notebooks-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: anonymous@kubeflow.org
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubeflow-notebooks-ui-admin-anonymous
+  namespace: dummypipeline
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jupyter-web-app-kubeflow-notebook-ui-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: anonymous@kubeflow.org
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubeflow-kserve-admin-anonymous
+  namespace: dummypipeline
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubeflow-kserve-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: anonymous@kubeflow.org
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubeflow-kserve-models-web-app-anonymous
+  namespace: dummypipeline
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kserve-models-web-app-cluster-role
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: anonymous@kubeflow.org
+---
+# Also bind to the kubeflow namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubeflow-admin-anonymous
+  namespace: kubeflow
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubeflow-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: anonymous@kubeflow.org

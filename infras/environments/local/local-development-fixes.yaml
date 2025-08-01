@@ -1,0 +1,24 @@
+# 1. Disable Istio injection for kubeflow namespaces
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kubeflow
+  labels:
+    istio-injection: disabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dummypipeline
+  labels:
+    istio-injection: disabled
+---
+# 2. ConfigMap to disable Istio features that cause issues in local dev
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: local-dev-config
+  namespace: kubeflow
+data:
+  disable-istio: "true"
+  local-development: "true"

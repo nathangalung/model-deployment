@@ -1,0 +1,161 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-proxy-config
+  namespace: kubeflow
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    
+    http {
+        upstream centraldashboard {
+            server centraldashboard.kubeflow.svc.cluster.local:80;
+        }
+        
+        upstream jupyter {
+            server jupyter-web-app-service.kubeflow.svc.cluster.local:80;
+        }
+        
+        upstream pipelines {
+            server ml-pipeline-ui.kubeflow.svc.cluster.local:80;
+        }
+        
+        upstream volumes {
+            server volumes-web-app-service.kubeflow.svc.cluster.local:80;
+        }
+        
+        upstream kserve {
+            server kserve-models-web-app.kubeflow.svc.cluster.local:80;
+        }
+        
+        upstream mlflow {
+            server mlflow-service.kubeflow.svc.cluster.local:5000;
+        }
+        
+        server {
+            listen 80;
+            
+            # Central Dashboard (main)
+            location / {
+                proxy_pass http://centraldashboard/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                # Kubeflow authentication headers
+                proxy_set_header kubeflow-userid "anonymous@kubeflow.org";
+                proxy_set_header kubeflow-groups "kubeflow-users";
+            }
+            
+            # Jupyter Notebooks
+            location /jupyter/ {
+                proxy_pass http://jupyter/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Prefix /jupyter;
+                # Kubeflow authentication headers
+                proxy_set_header kubeflow-userid "anonymous@kubeflow.org";
+                proxy_set_header kubeflow-groups "kubeflow-users";
+            }
+            
+            # Kubeflow Pipelines
+            location /pipeline/ {
+                proxy_pass http://pipelines/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Prefix /pipeline;
+                # Kubeflow authentication headers
+                proxy_set_header kubeflow-userid "anonymous@kubeflow.org";
+                proxy_set_header kubeflow-groups "kubeflow-users";
+            }
+            
+            # Volumes
+            location /volumes/ {
+                proxy_pass http://volumes/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Prefix /volumes;
+                # Kubeflow authentication headers
+                proxy_set_header kubeflow-userid "anonymous@kubeflow.org";
+                proxy_set_header kubeflow-groups "kubeflow-users";
+            }
+            
+            # KServe
+            location /kserve-endpoints/ {
+                proxy_pass http://kserve/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Prefix /kserve-endpoints;
+                # Kubeflow authentication headers
+                proxy_set_header kubeflow-userid "anonymous@kubeflow.org";
+                proxy_set_header kubeflow-groups "kubeflow-users";
+            }
+            
+            # MLflow
+            location /mlflow/ {
+                proxy_pass http://mlflow/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+                proxy_set_header X-Forwarded-Prefix /mlflow;
+                # Kubeflow authentication headers
+                proxy_set_header kubeflow-userid "anonymous@kubeflow.org";
+                proxy_set_header kubeflow-groups "kubeflow-users";
+            }
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubeflow-gateway-proxy
+  namespace: kubeflow
+  labels:
+    app: kubeflow-gateway-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubeflow-gateway-proxy
+  template:
+    metadata:
+      labels:
+        app: kubeflow-gateway-proxy
+        sidecar.istio.io/inject: "false"
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.21
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-proxy-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubeflow-gateway-proxy
+  namespace: kubeflow
+spec:
+  selector:
+    app: kubeflow-gateway-proxy
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP

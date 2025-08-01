@@ -1,0 +1,40 @@
+apiVersion: kustomize.config.k8s.io/v1
+kind: Kustomization
+
+resources:
+# Infrastructure assumed to be managed externally in production
+# Only include Kubeflow applications
+- ../../manifests
+
+patches:
+- path: resource-limits-production.yaml
+
+# Production environment scaling
+replicas:
+- name: ml-pipeline
+  count: 3
+- name: ml-pipeline-ui
+  count: 3
+- name: metadata-grpc-deployment
+  count: 3
+- name: minio
+  count: 3  # HA setup
+- name: mysql
+  count: 1  # Use external managed database in production
+- name: mlflow-server
+  count: 3
+
+# Production storage configuration (use default from manifests)
+
+# Add production-specific configs
+configMapGenerator:
+- name: environment-config
+  literals:
+  - ENVIRONMENT=production
+  - LOG_LEVEL=warn
+  - MINIO_ENDPOINT=minio.example.com
+  - MLFLOW_ENDPOINT=mlflow.example.com
+  - MYSQL_ENDPOINT=mysql.example.com
+
+# Security patches (commented out - create security-production.yaml if needed)
+# - path: security-production.yaml

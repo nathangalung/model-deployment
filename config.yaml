@@ -32,7 +32,7 @@ H2O_CONFIG:
   CROSS_VALIDATION: "YES"
 
 KUBERNETES:
-  NAMESPACE: "kubeflow"
+  NAMESPACE: "dummypipeline"
   SERVICE_ACCOUNT: "kserve-service-account"
 
 KSERVE:

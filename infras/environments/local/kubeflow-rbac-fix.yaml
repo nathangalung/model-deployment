@@ -1,0 +1,137 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kubeflow-admin
+rules:
+# Pipeline-specific resources (matching kubeflow-pipelines-edit)
+- apiGroups: ["pipelines.kubeflow.org"]
+  resources: ["runs", "experiments", "jobs", "pipelines", "pipelines/versions"]
+  verbs: ["*"]
+- apiGroups: ["pipelines.kubeflow.org"] 
+  resources: ["visualizations"]
+  verbs: ["create"]
+- apiGroups: ["argoproj.io"]
+  resources: ["workflows", "workflows/finalizers", "cronworkflows", "cronworkflows/finalizers", "workflowtemplates", "workfloweventbindings", "workflowtaskresults"]
+  verbs: ["*"]
+- apiGroups: ["kubeflow.org"]
+  resources: ["scheduledworkflows", "viewers"]
+  verbs: ["*"]
+# Notebook permissions (matching existing roles)
+- apiGroups: ["kubeflow.org"]
+  resources: ["notebooks", "profiles", "poddefaults"]
+  verbs: ["*"]
+# KServe permissions (matching existing roles)
+- apiGroups: ["serving.kserve.io"]
+  resources: ["*"]
+  verbs: ["*"]
+- apiGroups: ["serving.knative.dev"]
+  resources: ["*"]
+  verbs: ["*"]
+# General Kubernetes resources
+- apiGroups: [""]
+  resources: ["pods", "services", "configmaps", "secrets", "persistentvolumeclaims", "events"]
+  verbs: ["*"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["*"]
+# Namespace access
+- apiGroups: [""]
+  resources: ["namespaces"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubeflow-admin-anonymous
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubeflow-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: anonymous@kubeflow.org
+---
+# Also bind to the kubeflow-users group for additional permissions
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubeflow-users-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubeflow-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: Group
+  name: kubeflow-users
+---
+# Bind existing pipeline roles to our user
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubeflow-pipelines-admin-anonymous
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubeflow-pipelines-edit
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: anonymous@kubeflow.org
+---
+# Bind notebook roles
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubeflow-notebooks-admin-anonymous
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: notebook-controller-kubeflow-notebooks-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: anonymous@kubeflow.org
+---
+# Bind notebook UI roles 
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubeflow-notebooks-ui-admin-anonymous
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: jupyter-web-app-kubeflow-notebook-ui-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: anonymous@kubeflow.org
+---
+# Bind KServe roles
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubeflow-kserve-admin-anonymous
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubeflow-kserve-admin
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: anonymous@kubeflow.org
+---
+# Bind KServe models web app roles
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kubeflow-kserve-models-web-app-anonymous
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kserve-models-web-app-cluster-role
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: anonymous@kubeflow.org
